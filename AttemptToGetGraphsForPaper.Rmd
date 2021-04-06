@@ -1,0 +1,254 @@
+---
+title: "11 Cleaned up graphs before paper"
+author: "Emily Rudman"
+date: "4/5/2021"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+library(ggplot2)
+library(lattice)
+library(tidyr)
+library(dplyr)
+library(broom)
+library(MASS)
+library(alr4)
+library(plotrix)
+library(leaps)
+library(faraway)
+library(mFilter)
+library(effects)
+library(zoo)
+library(lme4)
+library(RLRsim)
+library(pbkrtest)
+library(vcd)
+library(VGAM)
+library(cowplot)
+library(Hmisc)
+library(magrittr)
+library(corrplot)
+library(GGally)
+library(gridExtra)
+library(e1071)
+library(tidyverse)
+library(rstatix)
+library(ggpubr)
+library(PairedData)
+library(patchwork)
+```
+
+
+```{r, echo = FALSE}
+data1=read.csv("/Users/walth/Documents/Research/Cavar/RussianCs/FormattedTable3.csv", header=TRUE)
+data2=read.csv("/Users/walth/Documents/Research/Cavar/RussianCs/FormattedTable4.csv", header=TRUE)
+data3=read.csv("/Users/walth/Documents/Research/Cavar/RussianCs/FormattedTable6.csv", header=TRUE)
+data5=read.csv("/Users/walth/Documents/Research/Cavar/RussianCs/FormattedTableAverages.csv", header=TRUE)
+data1 = na.omit(data1)
+data2 = na.omit(data2)
+data2$Softness2 = data2$Softness
+data2$Softness = as.factor(data2$Softness)
+data2$Softness3 = ifelse(data2$Softness == "0", "non-palatalized", "palatalized")
+
+
+data3 = na.omit(data3)
+data3$Softness2 = data3$Softness
+data3$Softness = as.factor(data3$Softness)
+data3$Softness3 = ifelse(data3$Softness == "0", "non-palatalized", "palatalized")
+data3$Softness = data3$Softness3
+
+data1$Softness2 = data1$Softness
+data1$Softness = as.factor(data1$Softness)
+data1$Softness3 = ifelse(data1$Softness == "0", "non-palatalized", "palatalized")
+data1$Softness = data1$Softness3
+
+ 
+
+data1$Consonant = ifelse(data1$Consonant == "sh", "Å¡", data1$Consonant)
+
+data1$Consonant2 = ifelse(data1$Consonant == "k", "velar", ifelse(data1$Consonant == "p", "labial", ifelse(data1$Consonant == "Å¡", "post alveolar", "dental" )))
+
+
+
+```
+
+
+
+# Figure 2 possibilities:
+
+
+```{r, echo= FALSE}
+p1 = ggplot(data2, aes(x = Softness3, y=Sag.view.TB.x1 )) + geom_boxplot()  + labs(y="Tongue Dorsum Frontness")+ labs(x= "Softness")
+p1
+
+```
+```{r}
+p1v2 = p1 + theme_classic()
+p1v2
+
+```
+
+```{r, echo = FALSE}
+p3 <- ggpaired(data2, x ="Softness3", y = "Sag.view.TB.x1", color = "Softness3", palette = "jco", line.color = "gray", line.size = .1, short.panel.labs = FALSE )
+p3
+```
+
+
+# Figure 3
+
+```{r, echo= FALSE}
+p1= ggplot(data2, aes(Sag.view.TB.x1, fill = Softness3)) + geom_histogram(position = "dodge")+ labs(x="Tongue Dorsum Frontness")+ labs(fill = "Softness")+ theme(legend.position = "none")
+p2= ggplot(data2, aes(Sag.view.TB.x1, fill = Softness3)) + geom_histogram(position = "dodge")+ facet_wrap(~Speaker)+ labs(x="Tongue Dorsum Frontness") + labs(fill = "Softness") + labs(y = "")
+p3 = p1 + p2 + 
+  plot_layout(widths = c(1, 1))
+p3
+```
+
+# Figure 4
+
+```{r, echo= FALSE}
+p1= ggplot(data1, aes(x = VowelContext, y= FrontingTB, color = VowelContext)) + geom_boxplot()+ labs(y="Tongue Dorsum Fronting")+  theme(legend.position = "none") + labs(x="Vowel Context")
+
+p2= ggplot(data1, aes(x = Consonant, y= FrontingTB, color = Consonant)) + geom_boxplot()+ labs(y="")+  theme(legend.position = "none")+ labs(x="Consonant")
+
+
+p3 = p1 + p2 + 
+  plot_layout(widths = c(1, 1))
+p3
+```
+
+# Figure 5 possibilities.
+
+
+
+
+```{r, echo= FALSE}
+p1 = ggplot(data2, aes(x = Softness3, y=Sag.view.TB.y1 )) + geom_boxplot()  + labs(y="Tongue Dorsum Height")+ labs(x= "Softness")
+
+
+
+p1v2 = p1 + theme_classic()
+
+p1
+p1v2
+
+```
+
+
+# Figure 6
+
+```{r, echo= FALSE}
+p1= ggplot(data2, aes(Sag.view.TB.y1, fill = Softness3)) + geom_histogram(position = "dodge")+ labs(x="Tongue Dorsum Height")+ labs(fill = "Softness")+ theme(legend.position = "none")
+p2= ggplot(data2, aes(Sag.view.TB.y1, fill = Softness3)) + geom_histogram(position = "dodge")+ facet_wrap(~Speaker)+ labs(x="Tongue Dorsum Height") + labs(fill = "Softness") + labs(y = "")
+p3 = p1 + p2 + 
+  plot_layout(widths = c(1, 1))
+p3
+```
+
+
+# Figure 7
+
+```{r, echo= FALSE}
+p1= ggplot(data1, aes(x = VowelContext, y= RaisingTB, color = VowelContext)) + geom_boxplot()+ labs(y="Tongue Dorsum Raising")+  theme(legend.position = "none") + labs(x="Vowel Context")
+
+p2= ggplot(data1, aes(x = Consonant, y= RaisingTB, color = Consonant)) + geom_boxplot()+ labs(y="")+  theme(legend.position = "none")+ labs(x="Consonant")
+
+
+p3 = p1 + p2 + 
+  plot_layout(widths = c(1, 1))
+p3
+```
+
+# Figure 8 
+
+```{r, echo= FALSE}
+p1= ggplot(data2, aes(x =Sag.view.TB.x1, y= Sag.view.TB.y1, color = Softness3, shape = Softness3)) + geom_point()+ labs(x="Tongue Dorsum Frontness")+ theme(legend.position = "none") + labs(y="Tongue Dorsum Height")
+
+p2= ggplot(data2, aes(x =Sag.view.TB.x1, y= Sag.view.TB.y1, color = Softness3, shape = Softness3)) + geom_point()+ facet_wrap(~Speaker) + labs(fill = "Softness") + labs(y = "")+ labs(x="Tongue Dorsum Frontness")
+p3 = p1 + p2 + 
+  plot_layout(widths = c(1, 1)) 
+p3
+```
+
+# Figure 9 
+```{r, echo= FALSE}
+p1= ggplot(data1, aes(x = VowelContext, y= TBEuclidean, color = VowelContext)) + geom_boxplot()+ labs(y="Tongue Dorsum Fronting-Raising")+  theme(legend.position = "none") + labs(x="Vowel Context")
+
+p2= ggplot(data1, aes(x = Consonant, y= TBEuclidean, color = Consonant)) + geom_boxplot()+ labs(y="")+  theme(legend.position = "none")+ labs(x="Consonant")
+
+
+p3 = p1 + p2 + 
+  plot_layout(widths = c(1, 1))
+p3
+```
+
+
+#Figure 10 possibilities
+
+```{r, echo= FALSE}
+p1 = ggplot(data2, aes(x = Softness3, y=Sag.view.x1 )) + geom_boxplot()  + labs(y="Tongue Root Frontness")+ labs(x= "Softness")
+
+
+
+p1v2 = p1 + theme_classic()
+
+```
+
+```{r, echo= FALSE}
+p2 = ggplot(data2, aes(x = Softness3, y=Sag.view.y1 )) + geom_boxplot()  + labs(y="Tongue Root Height")+ labs(x= "Softness")
+
+
+
+p2v2 = p2 + theme_classic()
+
+```
+
+
+```{r, echo= FALSE}
+p3 = p1 + p2
+p4 = p1v2+p2v2
+p3  
+p4
+```
+
+
+
+
+# Figure 11
+
+```{r, echo= FALSE}
+p1= ggplot(data2, aes(x =Sag.view.x1, y= Sag.view.y1, color = Softness3, shape = Softness3)) + geom_point()+ labs(x="Tongue Root Frontness")+ theme(legend.position = "none") + labs(y="Tongue Root Height")
+
+p2= ggplot(data2, aes(x =Sag.view.x1, y= Sag.view.y1, color = Softness3, shape = Softness3)) + geom_point()+ facet_wrap(~Speaker) + labs(fill = "Softness") + labs(y = "")+ labs(x="Tongue Root Frontness")
+p3 = p1 + p2 + 
+  plot_layout(widths = c(1, 1)) 
+p3
+```
+
+# Figure 12
+
+
+```{r, echo= FALSE}
+p1= ggplot(data2, aes(x =Sag.view.x1, y= Sag.view.y1, color = Softness3, shape = Softness3)) + geom_point()+ labs(x="Tongue Root Frontness")+ theme(legend.position = "none") + labs(y="Tongue Root Height")+ facet_wrap(~Consonant) 
+
+p2= ggplot(data2, aes(x =Sag.view.x1, y= Sag.view.y1, color = Softness3, shape = Softness3)) + geom_point()+ facet_wrap(~VowelContext) + labs(fill = "Softness") + labs(y = "")+ labs(x="Tongue Root Frontness")
+p3 = p1 + p2 + 
+  plot_layout(widths = c(1, 1)) 
+p3
+```
+
+
+# Figure 13
+```{r, echo= FALSE}
+p1= ggplot(data1, aes(x = VowelContext, y= ATR, color = VowelContext)) + geom_boxplot()+ labs(y="Tongue Root Advancement")+  theme(legend.position = "none") + labs(x="Vowel Context")
+
+p2= ggplot(data1, aes(x = Consonant, y= ATR, color = Consonant)) + geom_boxplot()+ labs(y="")+  theme(legend.position = "none")+ labs(x="Consonant")
+
+
+p3 = p1 + p2 + 
+  plot_layout(widths = c(1, 1))
+p3
+```
+
+
+
